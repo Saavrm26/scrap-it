@@ -8,9 +8,11 @@ const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 const rateLimiter = require('./middlewares/rateLimiter');
 
-// middleware Configurations
-
 const app = express();
+
+const userRouter = require('./routes/userRoutes');
+
+// middlewares
 
 app.use(helmet);
 
@@ -27,6 +29,8 @@ app.use(express.json({ limit: '50kb' }));
 app.use(helmet.xssFilter());
 
 app.use(mongoSanitize());
+
+app.use('/api/v1/users/', userRouter);
 
 app.all('*', (req, res, next) => {
   next(new AppError('Url requested was not found', 404));
