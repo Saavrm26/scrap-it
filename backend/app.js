@@ -14,9 +14,9 @@ const userRouter = require('./routes/userRoutes');
 
 // middlewares
 
-app.use(helmet);
-
 app.use('/api', rateLimiter);
+
+app.use(helmet());
 
 if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 
