@@ -1,6 +1,10 @@
 __pycache__/
 pip-log.txt
+
+*.env
 venv/
+node_modules/
+*.cache
 
 **.vscode
 **/*.code-workspace

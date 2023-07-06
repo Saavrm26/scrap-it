@@ -1,118 +1,38 @@
-const express = require("express");
-const app = express();
-const mongoose = require("mongoose");
-const morgan = require("morgan");
-const bodyParser = require("body-parser");
-require("dotenv").config();
-var cors = require('cors');
-var cookieParser = require('cookie-parser');
-const path = require('path');
-const mongoSanitize = require('express-mongo-sanitize');
+const express = require('express');
+const morgan = require('morgan');
 const helmet = require('helmet');
-const xss = require("xss-clean");
-const rateLimit = require('express-rate-limit')
-const hpp = require('hpp');
+const mongoSanitize = require('express-mongo-sanitize');
+const compression = require('compression');
+const cookieParser = require('cookie-parser');
+const AppError = require('./utils/appError');
+const globalErrorHandler = require('./controllers/errorController');
+const rateLimiter = require('./middlewares/rateLimiter');
 
+// middleware Configurations
 
+const app = express();
 
-//adding socket.io configuration
-const http = require('http');
-const server = http.createServer(app);
-const { Server } = require("socket.io");
-const io = new Server(server);
+app.use(helmet);
 
-const errorHandler = require('./middleware/error');
+app.use('/api', rateLimiter);
 
+if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 
-
-//import routes
-const authRoutes = require('./routes/authRoutes');
-const postRoute = require('./routes/postRoute');
-
-
-//database connection
-mongoose.connect(process.env.DATABASE, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useCreateIndex: true,
-  useFindAndModify: false
-})
-  .then(() => console.log("DB connected"))
-  .catch((err) => console.log(err));
-
-
-//MIDDLEWARE
-app.use(morgan('dev'));
-app.use(bodyParser.json({ limit: "5mb" }));
-app.use(bodyParser.urlencoded({
-  limit: "5mb",
-  extended: true
-}));
 app.use(cookieParser());
-app.use(cors());
 
-// prevent SQL injection
+app.use(compression());
+
+app.use(express.json({ limit: '50kb' }));
+
+app.use(helmet.xssFilter());
+
 app.use(mongoSanitize());
-// adding security headers
-app.use(
-  helmet.contentSecurityPolicy({
-    useDefaults: true,
-    directives: {
-      "img-src": ["'self'", "https: data:"]
-    }
-  })
-)
-// prevent Cross-site Scripting XSS
-app.use(xss());
-//limit queries per 15mn
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-})
-app.use(limiter);
-//HTTP Param Pollution
-app.use(hpp());
 
-//ROUTES MIDDLEWARE
-app.use('/api', authRoutes);
-app.use('/api', postRoute);
+app.all('*', (req, res, next) => {
+  next(new AppError('Url requested was not found', 404));
+});
 
-__dirname = path.resolve()
+// Middleware but it is in controllers
+app.use(globalErrorHandler);
 
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '/frontend/build')))
-
-  app.get('*', (req, res) =>
-    res.sendFile(path.resolve(__dirname, 'frontend', 'build', 'index.html'))
-  )
-} else {
-  app.get('/', (req, res) => {
-    res.send('API is running....')
-  })
-}
-
-
-//error middleware
-app.use(errorHandler);
-
-//port
-const port = process.env.PORT || 9000
-
-// app.listen(port, () => {
-//     console.log(` Server running on port ${port}`);
-// })
-io.on('connection', (socket) => {
-  //console.log('a user connected', socket.id);
-  socket.on('comment', (msg) => {
-    // console.log('new comment received', msg);
-    io.emit("new-comment", msg);
-  })
-})
-
-exports.io = io
-
-server.listen(port, () => {
-  console.log(` Server running on port ${port}`);
-})
+module.exports = app;
