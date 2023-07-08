@@ -15,7 +15,7 @@ def extract_job_details(job_details_section: str) -> dict[str, Any]:
             "shift and schedule", "benefits and perks"]
     job_details = {}
     for key in keys:
-        job_details[key] = ['NA']
+        job_details[key] = ['']
     current_key = None
 
     for line in lines:

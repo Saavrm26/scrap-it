@@ -1,16 +1,10 @@
 import scrapy
 
-import html2text
-
 from scrapping.job_loader import JobLoader
 
+from scrapping.color_printing import prRed, prYellow
+
 RESPONSE = scrapy.http.Response
-
-
-def prGreen(skk): print("\033[92m {}\033[00m" .format(skk))
-
-
-def prRed(skk): print("\033[91m {}\033[00m" .format(skk))
 
 
 meta = {
@@ -19,6 +13,8 @@ meta = {
 
 
 class IndeedSpider(scrapy.Spider):
+    # TODO: Use Scrapper API to implement proxy
+    # TODO: Create an pipeline for compression
     name = "indeed"
 
     def __init__(self, title: str, location: str, *args, **kwargs):
@@ -28,15 +24,20 @@ class IndeedSpider(scrapy.Spider):
         self.url = f"https://in.indeed.com/jobs?q={title.replace(' ', '+')}&l={location}"
 
     def start_requests(self):
-        yield scrapy.Request(self.url, callback=self.parse_job_cards, meta=meta)
+        try:
+            prYellow("Inside start_requests")
+            yield scrapy.Request(self.url, callback=self.parse_job_cards, meta=meta)
+        except Exception as e:
+            prRed(e)
+            prRed("At start_requests")
 
     def parse_job_cards(self, response):
         try:
-
+            prYellow("Inside parse_job_cards")
             job_cards_list = response.css(
                 ".jobsearch-ResultsList").css(".cardOutline")
 
-            for job_card in job_cards_list[0:1]:
+            for job_card in job_cards_list[0:2]:
 
                 jk = job_card.css('a::attr(data-jk)').get()
                 job_url = f"https://in.indeed.com/viewjob?jk={jk}"
@@ -45,10 +46,11 @@ class IndeedSpider(scrapy.Spider):
 
         except Exception as e:
             prRed(e)
+            prYellow("At parse_job_cards")
 
     def parse_job_page(self, response):
         try:
-
+            prYellow("Inside parse_job_page")
             scrappedItems = {}
 
             scrappedItems["job_title"] = response.css(
@@ -68,10 +70,10 @@ class IndeedSpider(scrapy.Spider):
             scrappedItems["job_details_html"] = response.css(
                 '#jobDetailsSection').get()
 
-            yield JobLoader(scrappedItems).load_item()
+            yield JobLoader(scrappedItems).load_item()()
 
-            # TODO: Create an pipeline for serialization and compression
-            # TODO: Use Scrapper API to implement proxy
 
         except Exception as e:
             prRed(e)
+            prYellow("At parse_job_page")
+            yield None

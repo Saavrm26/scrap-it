@@ -65,9 +65,9 @@ DOWNLOAD_HANDLERS = {
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-# ITEM_PIPELINES = {
-#    "scrapping.pipelines.ScrappingPipeline": 300,
-# }
+ITEM_PIPELINES = {
+    "scrapping.pipelines.JobPipeline": 300,
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html

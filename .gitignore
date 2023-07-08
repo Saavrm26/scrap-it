@@ -13,3 +13,5 @@ node_modules/**
 config.py
 
 test_files
+
+results
