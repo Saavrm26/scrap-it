@@ -11,3 +11,5 @@ node_modules/**
 **/*.code-workspace
 
 config.py
+
+test_files
