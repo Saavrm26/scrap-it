@@ -1,7 +1,11 @@
 import json
 import time
+import re
 from itemadapter import ItemAdapter
-from scrapping.color_printing import prPurple
+from scrapping.utils.color_printing import prPurple
+from scrapping.utils.types import string_fields, list_fields
+
+salary_parser = re.compile(r'\d+\.?\d*')
 
 
 class JobPipeline:
@@ -14,10 +18,40 @@ class JobPipeline:
         prPurple("Closing")
         self.file.close()
 
+    def extract_numbers(self, string):
+        return salary_parser.findall(string)
+
     def process_item(self, item, spider):
-        # TODO: Sanitize redundant values
-        # TODO: Design a database model to store scrapped information
+        #TODO: Store results in redis
         prPurple("Processing Item")
-        line = json.dumps(ItemAdapter(item).asdict()) + "\n"
+
+        unsanitized_job_details = ItemAdapter(item).asdict()
+        santized_job_details = {}
+
+        for k in string_fields:
+            v = unsanitized_job_details[k].pop()
+            if not v:
+                continue
+            santized_job_details[k] = v
+
+        for k in list_fields:
+            if not unsanitized_job_details[k][0]:
+                continue
+            v = unsanitized_job_details[k]
+            santized_job_details[k] = v
+
+            if k == "salary":
+                v = v[0]
+                v = v.replace(',', '')
+                unit = 'month'
+                if v.find('year') != -1:
+                    unit = 'year'
+                salary_range = self.extract_numbers(v)
+                santized_job_details[k] = {
+                    "salary_range": salary_range,
+                    "unit": unit
+                }
+
+        line = json.dumps(santized_job_details) + "\n"
         self.file.write(line)
         return item

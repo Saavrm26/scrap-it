@@ -1,8 +1,8 @@
 import scrapy
 
-from scrapping.job_loader import JobLoader
+from scrapping.itemloaders.indeed import JobLoader
 
-from scrapping.color_printing import prRed, prYellow
+from scrapping.utils.color_printing import prRed, prYellow
 
 RESPONSE = scrapy.http.Response
 
@@ -36,8 +36,8 @@ class IndeedSpider(scrapy.Spider):
             prYellow("Inside parse_job_cards")
             job_cards_list = response.css(
                 ".jobsearch-ResultsList").css(".cardOutline")
-
-            for job_card in job_cards_list[0:2]:
+            # For testing, limited results to 1
+            for job_card in job_cards_list[0:1]:
 
                 jk = job_card.css('a::attr(data-jk)').get()
                 job_url = f"https://in.indeed.com/viewjob?jk={jk}"
@@ -71,7 +71,6 @@ class IndeedSpider(scrapy.Spider):
                 '#jobDetailsSection').get()
 
             yield JobLoader(scrappedItems).load_item()()
-
 
         except Exception as e:
             prRed(e)

@@ -1,6 +1,6 @@
 from typing import Any
 from scrapy.loader import ItemLoader
-from scrapping.items import Job
+from scrapping.items.indeed import Job
 import html2text
 
 
@@ -12,7 +12,7 @@ def extract_job_details(job_details_section: str) -> dict[str, Any]:
 
     lines = job_details_text.split('\n')
     keys = ["salary", "job type",
-            "shift and schedule", "benefits and perks"]
+            "shift and schedule", "benefits & perks"]
     job_details = {}
     for key in keys:
         job_details[key] = ['']
@@ -57,9 +57,12 @@ class JobLoader:
             if type(value) is str:
                 value = value.strip()
 
+            if key == "benefits & perks":
+                key = 'and'.split(key.split('&'))
+
             key = '_'.join(key.split(' '))
 
-            self.Loader.add_value(key, value)
+            self.Loader.replace_value(key, value)
 
     def load_item(self) -> ItemLoader.load_item:
         return self.Loader.load_item
