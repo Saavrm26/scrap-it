@@ -24,15 +24,15 @@ class IndeedSpider(scrapy.Spider):
 
     def start_requests(self):
         try:
-            prYellow("Inside start_requests")
+            prYellow("Inside Indeed Spider's start_requests")
             yield scrapy.Request(self.url, callback=self.parse_job_cards, meta=meta)
         except Exception as e:
             prRed(e)
-            prRed("At start_requests")
+            prRed("At Indeed Spider's start_requests")
 
     def parse_job_cards(self, response):
         try:
-            prYellow("Inside parse_job_cards")
+            prYellow("Inside Indeed Spider's parse_job_cards")
             job_cards_list = response.css(
                 ".jobsearch-ResultsList").css(".cardOutline")
             # For testing, limited results to 1
@@ -45,31 +45,31 @@ class IndeedSpider(scrapy.Spider):
 
         except Exception as e:
             prRed(e)
-            prYellow("At parse_job_cards")
+            prYellow("At Indeed Spider's parse_job_cards")
 
     def parse_job_page(self, response):
         try:
             prYellow("Inside parse_job_page")
-            scrappedItems = {}
+            scrapped_items = {}
 
-            scrappedItems[JOB_TITLE] = response.css(
+            scrapped_items[JOB_TITLE] = response.css(
                 'h1.jobsearch-JobInfoHeader-title span::text').get()
 
-            scrappedItems[JOB_URL] = response.url
+            scrapped_items[JOB_URL] = response.url
 
-            scrappedItems[LOCATION] = response.css(
+            scrapped_items[LOCATION] = response.css(
                 'div[data-testid="inlineHeader-companyLocation"] div::text').get()
 
-            scrappedItems[COMPANY_NAME] = response.css(
+            scrapped_items[COMPANY_NAME] = response.css(
                 'div[data-testid="inlineHeader-companyName"] a::text').get()
 
-            scrappedItems[COMPANY_ABOUT_URL] = response.css(
+            scrapped_items[COMPANY_ABOUT_URL] = response.css(
                 'div[data-testid="inlineHeader-companyName"] a::attr(href)').get()
 
-            scrappedItems["job_details_html"] = response.css(
+            scrapped_items["job_details_html"] = response.css(
                 '#jobDetailsSection').get()
 
-            yield JobLoader(scrappedItems).load_item()()
+            yield JobLoader(scrapped_items).load_item()()
 
         except Exception as e:
             prRed(e)

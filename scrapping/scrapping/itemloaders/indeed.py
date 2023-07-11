@@ -1,6 +1,6 @@
 from typing import Any
 from scrapy.loader import ItemLoader
-from scrapping.items.indeed import Job
+from scrapping.items.Job import Job
 from scrapping.utils.types import SALARY, JOB_TYPE, SHIFT_AND_SCHEDULE, BENEFITS_AND_PERKS, COMPANY_ABOUT_URL
 import html2text
 
