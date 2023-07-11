@@ -1,5 +1,6 @@
 import scrapy
 from scrapping.utils.color_printing import prYellow, prRed, prGreen
+from scrapping.itemloaders.naukri import JobLoader
 from scrapping.utils.types import JOB_TITLE, COMPANY_NAME, COMPANY_ABOUT_URL, SALARY, LOCATION, JOB_URL
 
 meta = {
@@ -8,6 +9,7 @@ meta = {
 
 
 class NaukriSpider(scrapy.Spider):
+    # * THOUGHT: COMPRESS AND STORE JOB DESCRIPTION IN AN ELASTIC SEARCH DATABASE, THIS WILL ELIMINATE THE NEED OF SCRAPING BENEFITS, JOB_TYPE
     name = "naukri"
 
     def __init__(self, title: str, location: str, *args, **kwargs):
@@ -40,7 +42,7 @@ class NaukriSpider(scrapy.Spider):
 
     def parse_job_page(self, response):
         try:
-            prYellow("Inside parse_job_page")
+            prYellow("Inside Naukri Spider parse_job_page")
             prGreen(response.url)
             jd_body = response.css(".jd-container .leftSec")
             scrapped_items = {}
@@ -63,6 +65,8 @@ class NaukriSpider(scrapy.Spider):
 
             prGreen(scrapped_items)
 
+            yield JobLoader(scrapped_items).load_item()()
+
         except Exception as e:
             prRed(e)
-            prYellow("At parse_job_page")
+            prYellow("At Naukri Spider parse_job_page")

@@ -68,6 +68,7 @@ class JobLoader:
     def load_item(self) -> ItemLoader.load_item:
         return self.Loader.load_item
 
-    def __init__(self, scrappedItems: dict[str, Any]):
+    def __init__(self, scrapped_items: dict[str, Any]):
         self.Loader = ItemLoader(item=Job())
-        self.add_values(scrappedItems)
+        self.add_values(scrapped_items)
+
