@@ -4,8 +4,7 @@ from scrapping.itemloaders.indeed import JobLoader
 
 from scrapping.utils.color_printing import prRed, prYellow
 
-RESPONSE = scrapy.http.Response
-
+from scrapping.utils.types import JOB_TITLE, JOB_URL, LOCATION, COMPANY_ABOUT_URL, COMPANY_NAME
 
 meta = {
     "playwright": True
@@ -53,18 +52,18 @@ class IndeedSpider(scrapy.Spider):
             prYellow("Inside parse_job_page")
             scrappedItems = {}
 
-            scrappedItems["job_title"] = response.css(
+            scrappedItems[JOB_TITLE] = response.css(
                 'h1.jobsearch-JobInfoHeader-title span::text').get()
 
-            scrappedItems["job_url"] = response.url
+            scrappedItems[JOB_URL] = response.url
 
-            scrappedItems["location"] = response.css(
+            scrappedItems[LOCATION] = response.css(
                 'div[data-testid="inlineHeader-companyLocation"] div::text').get()
 
-            scrappedItems["company_name"] = response.css(
+            scrappedItems[COMPANY_NAME] = response.css(
                 'div[data-testid="inlineHeader-companyName"] a::text').get()
 
-            scrappedItems["company_about_url"] = response.css(
+            scrappedItems[COMPANY_ABOUT_URL] = response.css(
                 'div[data-testid="inlineHeader-companyName"] a::attr(href)').get()
 
             scrappedItems["job_details_html"] = response.css(

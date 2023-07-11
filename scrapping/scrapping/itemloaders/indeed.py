@@ -1,6 +1,7 @@
 from typing import Any
 from scrapy.loader import ItemLoader
 from scrapping.items.indeed import Job
+from scrapping.utils.types import SALARY, JOB_TYPE, SHIFT_AND_SCHEDULE, BENEFITS_AND_PERKS, COMPANY_ABOUT_URL
 import html2text
 
 
@@ -11,8 +12,8 @@ def extract_job_details(job_details_section: str) -> dict[str, Any]:
     job_details_text = html_converter.handle(job_details_section)
 
     lines = job_details_text.split('\n')
-    keys = ["salary", "job type",
-            "shift and schedule", "benefits & perks"]
+    keys = [SALARY, JOB_TYPE,
+            SHIFT_AND_SCHEDULE, BENEFITS_AND_PERKS]
     job_details = {}
     for key in keys:
         job_details[key] = ['']
@@ -48,7 +49,7 @@ class JobLoader:
                 self.add_values(job_details)
                 continue
 
-            if key == "company_about_url":
+            if key == COMPANY_ABOUT_URL:
                 value = value.split('?')[0]
 
             if type(value) is list:
