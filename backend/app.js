@@ -19,6 +19,8 @@ app.use('/api', rateLimiter);
 
 app.use(helmet());
 
+app.use(express.static('public'));
+
 if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 
 app.use(cookieParser());
@@ -31,9 +33,13 @@ app.use(helmet.xssFilter());
 
 app.use(mongoSanitize());
 
+app.get('/', (req, res) => {
+  res.sendFile('public/index.html');
+});
+
 app.use('/api/v1/users/', userRouter);
 
-app.use('/api/v1/problem/', jobRouter);
+app.use('/api/v1/job`/', jobRouter);
 
 app.all('*', (req, res, next) => {
   next(new AppError('Url requested was not found', 404));
