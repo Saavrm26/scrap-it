@@ -11,6 +11,7 @@ const rateLimiter = require('./middlewares/rateLimiter');
 const app = express();
 
 const userRouter = require('./routes/userRoutes');
+const jobRouter = require('./routes/jobRoutes');
 
 // middlewares
 
@@ -31,6 +32,8 @@ app.use(helmet.xssFilter());
 app.use(mongoSanitize());
 
 app.use('/api/v1/users/', userRouter);
+
+app.use('/api/v1/problem/', jobRouter);
 
 app.all('*', (req, res, next) => {
   next(new AppError('Url requested was not found', 404));
