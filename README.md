@@ -6,5 +6,6 @@ Our innovative web scraper efficiently gathers job details from these platforms 
 
 We have relocated the scraper to the Saavrm26/scrap-it-scrapping repository to ensure a clear separation of concerns. This repository now contains both the frontend code and the routing code, enhancing organization and maintainability.
 
-Frondend was made by Prateek Parmar
+Frondend was made by Prateek Parmar  
+
 Scrapping and Routing were done by Saarthak Verma
